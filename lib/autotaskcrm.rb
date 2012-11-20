@@ -62,8 +62,10 @@ class AutoTaskCrm
   end
 
   def get_accounts
-    resp = send_xml("<entity>account</entity><query><field>accountname<expression op='IsNotNull'></expression></field></query>")
-    resp != false ? resp.body[:query_response][:query_result][:entity_results][:entity].sort_by { |k,v| k[:account_name] } : nil
+    Rails.cache.fetch("accounts", :expires_in => 1.days) do
+      resp = send_xml("<entity>account</entity><query><field>accountname<expression op='IsNotNull'></expression></field></query>")
+      resp != false ? resp.body[:query_response][:query_result][:entity_results][:entity].sort_by { |k,v| k[:account_name] } : nil
+    end
   end
 
   def get_account_name(account_id)
@@ -96,6 +98,19 @@ class AutoTaskCrm
     Rails.cache.fetch("account_by_ticket_#{ticket_id}", :expires_in => 4.weeks) do
       resp = send_xml("<entity>ticket</entity><query><field>id<expression op='equals'>#{ticket_id}</expression></field></query>")
       resp != false ? resp.body[:query_response][:query_result][:entity_results][:entity][:account_id] : nil
+    end
+  end
+
+  def get_account_udf(account_id, field)
+    response = send_xml("<entity>account</entity><query><field>id<expression op='equals'>#{account_id}</expression></field></query>")
+    hash = response != false ? response.body[:query_response][:query_result][:entity_results][:entity][:user_defined_fields] : ""
+    if hash.is_a?(Hash)
+      hash[:user_defined_field].each do |udf|
+        return udf[:value] if udf[:name] == field
+      end
+        return ""
+    else
+      return ""
     end
   end
 

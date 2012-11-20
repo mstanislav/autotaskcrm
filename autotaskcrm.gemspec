@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name            = 'autotaskcrm'
-  s.version         = '0.1.1'
+  s.version         = '0.1.2'
 
-  s.date            = '2012-11-15'
+  s.date            = '2012-11-20'
   s.summary         = "AutoTask functionality for Ruby."
   s.description     = "Commonly needed AutoTask functionality for Ruby projects."
   s.authors         = ["Mark Stanislav"]
