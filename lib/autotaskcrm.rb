@@ -61,9 +61,14 @@ class AutoTaskCrm
       resp != false ? resp.body[:query_response][:query_result][:entity_results][:entity][:account_id] : nil
   end
 
-  def get_accounts
+
+ def get_accounts(from_date = nil)
     Rails.cache.fetch("accounts", :expires_in => 1.days) do
-      resp = send_xml("<entity>account</entity><query><field>accountname<expression op='IsNotNull'></expression></field></query>")
+      if from_date == nil
+        resp = send_xml("<entity>account</entity><query><field>accountname<expression op='IsNotNull'></expression></field></query>")
+      else
+        resp = send_xml("<entity>account</entity><query><field>LastActivityDate<expression op='GreaterThan'>#{Date.parse(from_date)}</expression></field></query>")
+      end
       resp != false ? resp.body[:query_response][:query_result][:entity_results][:entity].sort_by { |k,v| k[:account_name] } : nil
     end
   end
